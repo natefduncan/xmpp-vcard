@@ -21,10 +21,13 @@ if __name__ == "__main__":
     with open(Path(VCARD_PATH).expanduser(), "r") as f:
         vcard_str = f.read()
     contacts = parse_contacts(vcard_str)
-    for contact in contacts:
-       print(contact)
 
     # Update XMPP roster
     roster = client.getRoster()
-    for jid in roster.getItems():
-        print(jid)
+    jids = roster.getItems()
+    for contact in contacts:
+        new_jid = f"{contact.number}@cheogram.com"
+        if new_jid not in jids:
+            roster.setItem(new_jid, name=contact.name)
+            roster.Subscribe(new_jid)
+            roster.Authorize(new_jid)
