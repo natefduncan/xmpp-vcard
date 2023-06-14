@@ -1,17 +1,22 @@
 import os
+import time
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import xmpp
+
 from vcard import parse_contacts
 
 JID = os.getenv("JID")
 JPASS = os.getenv("JPASS")
 VCARD_PATH = os.getenv("VCARD_PATH")
+TEST = True
 
 if __name__ == "__main__":
-    # Connect to XMPP 
+    # Connect to XMPP
     jid = xmpp.protocol.JID(JID)
     client = xmpp.Client(jid.getDomain(), debug=[])
     client.connect()
@@ -28,6 +33,12 @@ if __name__ == "__main__":
     for contact in contacts:
         new_jid = f"{contact.number}@cheogram.com"
         if new_jid not in jids:
-            roster.setItem(new_jid, name=contact.name)
-            roster.Subscribe(new_jid)
-            roster.Authorize(new_jid)
+            if contact.number:
+                if TEST:
+                    print(f"Dry run: Add contact {new_jid} for {contact.name}")
+                else:
+                    roster.setItem(new_jid, name=contact.name)
+                    # roster.Subscribe(new_jid)
+                    roster.Authorize(new_jid)
+                    print(f"Add contact {new_jid} for {contact.name}")
+                time.sleep(0.5)
